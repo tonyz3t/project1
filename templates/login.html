@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login - BookHub
+{% endblock %}
+
+{% block body %}
+    <h1>Welcome To BookHub</h1>
+
+    <h3>Login!</h3>
+
+    
+    <form action="{{ url_for('home') }}" method="post" class="form-group">
+        <input class="form-control" name="username" placeholder="Username" required>
+        <input class="form-control" name="password" type="password" placeholder="Password" required>
+        <button class="btn btn-primary">Sign in</button>
+    </form>  
+
+{% endblock %}

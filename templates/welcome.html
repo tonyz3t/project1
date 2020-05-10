@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Welcome!
+{% endblock %}
+
+{% block body %}
+    <!-- Our sign in and sign up buttons using bootstrap stylesheet-->
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <a href="{{ url_for('login') }}">Login</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <a href="{{ url_for('register') }}">Register</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

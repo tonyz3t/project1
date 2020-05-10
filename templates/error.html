@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Error!
+{% endblock %}
+
+{% block body %}
+    <h1>Error</h1>
+    <h1>{{ message }}</h1>
+
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username, user.password }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
