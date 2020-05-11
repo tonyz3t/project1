@@ -33,6 +33,8 @@ db = scoped_session(sessionmaker(bind=engine))
 def welcome():
     return render_template("welcome.html")
 
+# Website Login Page
+# User must submit a valid username and password
 @app.route("/login")
 def login():
     # # take the user name and password from the form
@@ -55,18 +57,40 @@ def login():
     # Return the Log in page    
     return render_template("login.html")
 
-
-
 @app.route("/register")
 def register(): 
     return render_template("registration.html")
 
-
 @app.route("/home", methods=["GET", "POST"])
+def reg_process():
+    if request.method == "GET":
+        return home()
+
+    # handle registering the user here
+    # Gather our users info from registration sheet
+    name = request.form.get("name")
+    email = request.form.get("email")
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    #Insert into our database
+    db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, :email, :username, :password)",
+                {"name": name, "email": email, "username": username, "password":password})
+    db.commit()
+
+    # Render the loading page
+    return home()
+
+def login_process():
+    if request.method == "GET":
+        return login()
+
 def home():
     # TODO: Handle users registration information here?
     #REGISTRATION HANDLING
     users = db.execute("SELECT username, password FROM users")
+
+
 
     return render_template("error.html", message="shit", users=users)
 
