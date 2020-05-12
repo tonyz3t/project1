@@ -19,10 +19,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Set up database
-engine = create_engine(os.getenv("DATABASE_URL"))
-db = scoped_session(sessionmaker(bind=engine))
-
+users = db.execute("SELECT username, password FROM users")
 
 @app.route("/")
 # Our start of the Website
@@ -35,56 +32,61 @@ def welcome():
 
 # Website Login Page
 # User must submit a valid username and password
-@app.route("/login")
-def login():
-    # # take the user name and password from the form
-    # if request.method == "POST":
-        
-    #     req = request.form
-
-    #     username = req.get("username")
-    #     password = req.get("password")
-
-    #     if not username in User:
-    #         #TODO
-    #         return render_template("error.html", message="Invalid Username or Password, go back and try again")
-    #         pass
-    #     elif not password in User:
-    #         # TODO: send error message incorrect password
-    #         return render_template("error.html", message="Incorrect Username or Password, go back and try again")
-
-
-    # Return the Log in page    
-    return render_template("login.html")
-
-@app.route("/register")
-def register(): 
-    return render_template("registration.html")
-
-@app.route("/home", methods=["GET", "POST"])
-def reg_process():
+@app.route("/login", methods=["GET", "POST"])
+def login():    
+    # on get method we return the login page
     if request.method == "GET":
+        return render_template("login.html")
+    
+    # Once user submits the login page, we want to get all the information and log the user in
+    # take the user name and password from the form
+    if request.method == "POST":
+        #return render_template("error.html", message="its here now", users=users)
+
+        # PROCESS USER INFORMATION
+        # Gather our list of users    
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # TODO: LOGIN AUTHENTICATION 
+        # If the Username is not found, notify user and keep at login page?
+        if username not in users:
+            #TODO
+            return render_template("error.html", message=(f"Username:"+username+" not found"), users=users)
+        # else set current user to the username
+        else:
+            return render_template("error.html", message=password, users=users)
+
+        # check if the password entered is the same as the users password as entered in the database
+        if not password == user["password"]:
+            # TODO: send error message incorrect password 
+            return render_template("error.html", message="Incorrect username", users=users)
+            pass
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register(): 
+    if request.method == "GET":
+        return render_template("registration.html")
+    
+    if request.method == "POST":
+        # handle registering the user here
+        # Gather our users info from registration sheet
+        name = request.form.get("name")
+        email = request.form.get("email")
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        #Insert into our database
+        db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, :email, :username, :password)",
+                {"name": name, "email": email, "username": username, "password":password})
+        db.commit()
+
+        # Render the loading page
         return home()
 
-    # handle registering the user here
-    # Gather our users info from registration sheet
-    name = request.form.get("name")
-    email = request.form.get("email")
-    username = request.form.get("username")
-    password = request.form.get("password")
 
-    #Insert into our database
-    db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, :email, :username, :password)",
-                {"name": name, "email": email, "username": username, "password":password})
-    db.commit()
-
-    # Render the loading page
-    return home()
-
-def login_process():
-    if request.method == "GET":
-        return login()
-
+@app.route("/home", methods=["GET", "POST"])
 def home():
     # TODO: Handle users registration information here?
     #REGISTRATION HANDLING
