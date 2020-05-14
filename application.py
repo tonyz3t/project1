@@ -35,11 +35,22 @@ def welcome():
 @app.route("/login", methods=["GET", "POST"])
 def login():    
     # on get method we return the login page if the website does not remember the user
+    
     if request.method == "GET":
+        try:   
+            if session["USERNAME"] is None:
+                return render_template("login.html")
+            else:
+                return redirect(url_for("home"))
+        except:
+            return render_template("login.html")
+    
+    """ if request.method == "GET":
+        # return render_template("login.html", message="")
         if session["USERNAME"] is None:
             return render_template("login.html", message="")
         else:
-            return redirect(url_for("home"))
+            return redirect(url_for("home")) """
         
     
     # Once user submits the login page, we want to get all the information and log the user in
@@ -68,10 +79,13 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register(): 
     if request.method == "GET":
-        if session["USERNAME"] is None:
+        try:   
+            if session["USERNAME"] is None:
+                return render_template("registration.html")
+            else:
+                return redirect(url_for("home"))
+        except:
             return render_template("registration.html")
-        else:
-            return redirect(url_for("home"))
     
     if request.method == "POST":
         # handle registering the user here
@@ -86,24 +100,34 @@ def register():
                 {"name": name, "email": email, "username": username, "password":password})
         db.commit()
 
+        session["USERNAME"] = username
+
         # Render the loading page
         return home()
 
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
-    # TODO: Handle users registration information here?
-    #REGISTRATION HANDLING
-    if request.method == "GET":
-        if session["USERNAME"] is None:
-            return redirect(url_for("login"))
-        else:
-            pass
+    
+    if session["USERNAME"] is None:
+        return redirect(url_for("login"))
 
-    users = db.execute("SELECT username, password FROM users")
+    # If method is POST, indicates user is searching for a book
+    if request.method == "POST":
 
+        # Retrieve our search query from our form
+        search = request.form.get("search")
+        # We add % to the front and back of our search to query through our database for items containing part of the users search
+        my_search = "%" + search + "%"
+        # Retrieve a list of all the books with making query
+        # ILIKE is a case insensitive conditional
+        books = db.execute("SELECT * FROM books WHERE isbn ILIKE :search OR title ILIKE :search OR author ILIKE :search LIMIT 50",
+                                    {"search": my_search})
 
-    return render_template("home.html", users=users)
+        # Return the home page with our list of books relating to user search
+        return render_template("home.html", books=books)
+
+    return render_template("home.html")
 
 # Here we will handle the user signing out
 @app.route("/sign-out", methods=["GET"])
@@ -113,7 +137,6 @@ def signout():
     # redirect our user back to the login page\
     return redirect(url_for("login"))
 
-# TODO: Allow the user to search through our books
 # TODO: When a book is selected, print dialog with book's details
 # TODO: display the average book ratings retrieved from GoodReads
 # TODO: Allow the user to write a review for a book
@@ -126,4 +149,9 @@ def books():
     #books = Book.query.all()
     #return render_template
     pass
+
+@app.route("/about", methods=["POST"])
+def about():
+    # return the about page
+    return render_template("about.html")
 

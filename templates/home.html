@@ -1,19 +1,37 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Home!
+    Home - BookHub
 {% endblock %}
 
 {% block body %}
     <h1>HomePage!</h1>
 
+    <!-- Links to other pages using bootstrap grid columns -->
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <a href="{{ url_for('books') }}">Books</a>
+            </div>
+            <div class="col-sm">
+                <a href="{{ url_for('about') }}">About</a>
+            </div>
+            <div class="col-sm">
+                <form action="{{ url_for('home') }}"" method="post" class="form-group">
+                    <input class="form-control" name="search" placeholder="Search" required>
+                    <button class="btn btn-primary">Search</button>
+                </form>
+            </div>
+            <div class="col-sm">
+                <a href="{{ url_for('signout') }}">SignOut</a>
+            </div>
+        </div>
+    </div>
+
     <ul>
-        {% for user in users %}
-            <li>{{ user.username }}, {{ user.password }}</li>
+        {% for book in books %}
+            <li>{{ book }}</li>
         {% endfor %}
     </ul>
-    
-    
-    <a href="{{ url_for('signout') }}">SignOut</a>
     
 {% endblock %}
