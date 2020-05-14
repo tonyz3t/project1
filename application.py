@@ -36,7 +36,11 @@ def welcome():
 def login():    
     # on get method we return the login page
     if request.method == "GET":
-        return render_template("login.html")
+        if session["USERNAME"] is None:
+            return render_template("login.html", message="")
+        else:
+            return redirect(url_for("home"))
+        
     
     # Once user submits the login page, we want to get all the information and log the user in
     # take the user name and password from the form
@@ -48,26 +52,28 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
+        #find our user in our database
+        current_user = db.execute("SELECT username, password FROM users WHERE username = :username AND password = :password",
+                                    {"username": username, "password": password}).fetchone()
+
         # TODO: LOGIN AUTHENTICATION 
         # If the Username is not found, notify user and keep at login page?
-        if username not in users:
+        if current_user is None:
             #TODO
-            return render_template("error.html", message=(f"Username:"+username+" not found"), users=users)
+            return render_template("login.html", message="Username or Password is incorrect, please try again")
         # else set current user to the username
         else:
-            return render_template("error.html", message=password, users=users)
-
-        # check if the password entered is the same as the users password as entered in the database
-        if not password == user["password"]:
-            # TODO: send error message incorrect password 
-            return render_template("error.html", message="Incorrect username", users=users)
-            pass
+            session["USERNAME"] = current_user.username    
+            return redirect(url_for("home"))
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register(): 
     if request.method == "GET":
-        return render_template("registration.html")
+        if session["USERNAME"] is None:
+            return render_template("registration.html")
+        else:
+            return redirect(url_for("home"))
     
     if request.method == "POST":
         # handle registering the user here
@@ -90,17 +96,31 @@ def register():
 def home():
     # TODO: Handle users registration information here?
     #REGISTRATION HANDLING
+    if request.method == "GET":
+        if session["USERNAME"] is None:
+            return redirect(url_for("login"))
+        else:
+            pass
+
     users = db.execute("SELECT username, password FROM users")
 
 
 
-    return render_template("error.html", message="shit", users=users)
+    return render_template("home.html", users=users)
 
     """ if request.method == "GET":
         return login()
     else:    
         return render_template("error.html", message="SIGNED IN BUT USER N PASS HAVE NOT BEEN SAVED INTO DATABASE")
     pass """
+
+# Here we will handle the user signing out
+@app.route("/sign-out", methods=["GET"])
+def signout():
+    # delete the session
+    session["USERNAME"] = None
+    # redirect our user back to the login page\
+    return redirect(url_for("login"))
 
 @app.route("/books")
 def books():

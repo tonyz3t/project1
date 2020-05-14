@@ -24,7 +24,7 @@ class Book(db.Model):
 
 # Our User object class used to represent a user of the website
 class User(db.Model):
-    db.execute("CREATE TABLE users (name VARCHAR NOT NULL, email VARCHAR NOT NULL, username VARCHAR NOT NULL, password VARCHAR NOT NULL);")
+    db.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL, username VARCHAR NOT NULL, password VARCHAR NOT NULL);")
     db.commit()
 
     def set_password(self, password):
