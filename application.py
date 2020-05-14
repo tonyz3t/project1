@@ -34,7 +34,7 @@ def welcome():
 # User must submit a valid username and password
 @app.route("/login", methods=["GET", "POST"])
 def login():    
-    # on get method we return the login page
+    # on get method we return the login page if the website does not remember the user
     if request.method == "GET":
         if session["USERNAME"] is None:
             return render_template("login.html", message="")
@@ -56,10 +56,8 @@ def login():
         current_user = db.execute("SELECT username, password FROM users WHERE username = :username AND password = :password",
                                     {"username": username, "password": password}).fetchone()
 
-        # TODO: LOGIN AUTHENTICATION 
-        # If the Username is not found, notify user and keep at login page?
+        # If the Username is not found, notify user and keep at login page
         if current_user is None:
-            #TODO
             return render_template("login.html", message="Username or Password is incorrect, please try again")
         # else set current user to the username
         else:
@@ -105,14 +103,7 @@ def home():
     users = db.execute("SELECT username, password FROM users")
 
 
-
     return render_template("home.html", users=users)
-
-    """ if request.method == "GET":
-        return login()
-    else:    
-        return render_template("error.html", message="SIGNED IN BUT USER N PASS HAVE NOT BEEN SAVED INTO DATABASE")
-    pass """
 
 # Here we will handle the user signing out
 @app.route("/sign-out", methods=["GET"])
@@ -121,6 +112,13 @@ def signout():
     session["USERNAME"] = None
     # redirect our user back to the login page\
     return redirect(url_for("login"))
+
+# TODO: Allow the user to search through our books
+# TODO: When a book is selected, print dialog with book's details
+# TODO: display the average book ratings retrieved from GoodReads
+# TODO: Allow the user to write a review for a book
+# TODO: create data tables to store user reviews
+# TODO: connect our books, users, and reviews tables somehow
 
 @app.route("/books")
 def books():
