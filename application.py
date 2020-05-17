@@ -4,7 +4,7 @@ from flask import Flask, session, render_template, request, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-#from models import *
+from models import *
 
 app = Flask(__name__)
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -45,14 +45,6 @@ def login():
         except:
             return render_template("login.html")
     
-    """ if request.method == "GET":
-        # return render_template("login.html", message="")
-        if session["USERNAME"] is None:
-            return render_template("login.html", message="")
-        else:
-            return redirect(url_for("home")) """
-        
-    
     # Once user submits the login page, we want to get all the information and log the user in
     # take the user name and password from the form
     if request.method == "POST":
@@ -64,7 +56,7 @@ def login():
         password = request.form.get("password")
 
         #find our user in our database
-        current_user = db.execute("SELECT username, password FROM users WHERE username = :username AND password = :password",
+        current_user = db.execute("SELECT username, password FROM users WHERE LOWER(username) = LOWER(:username)  AND password = :password",
                                     {"username": username, "password": password}).fetchone()
 
         # If the Username is not found, notify user and keep at login page
@@ -96,14 +88,15 @@ def register():
         password = request.form.get("password")
 
         #Insert into our database
+        # TODO: handle error exception when an username that exists in the datatable is added to a new user
         db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, :email, :username, :password)",
                 {"name": name, "email": email, "username": username, "password":password})
         db.commit()
 
         session["USERNAME"] = username
 
-        # Render the loading page
-        return home()
+        # Send user to the home page
+        return redirect(url_for('home'))
 
 
 @app.route("/home", methods=["GET", "POST"])
@@ -137,6 +130,7 @@ def signout():
     # redirect our user back to the login page\
     return redirect(url_for("login"))
 
+# TODO: Make each book item from the list a selectable object
 # TODO: When a book is selected, print dialog with book's details
 # TODO: display the average book ratings retrieved from GoodReads
 # TODO: Allow the user to write a review for a book

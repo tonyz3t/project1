@@ -3,8 +3,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from werkzeug.security import generate_password_hash, check_password_hash
-
+    
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
