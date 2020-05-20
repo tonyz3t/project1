@@ -34,3 +34,9 @@ CREATE TABLE users (
     UNIQUE(username) 
     -- a user has a list of reviews
 );
+
+
+/* Connect data tables to each other
+each userr should have a list of reviews
+each review belongs to a book and a user */
+

@@ -28,10 +28,21 @@
         </div>
     </div>
 
-    <ul>
+
+    <div class="d-flex align-content-start flex-wrap">
+        {% for book in books %}
+        <div class="m-auto p-2 bd-highlight">
+            <span class="p-2 border border-dark rounded-pill">
+                <a href="{{ url_for('book', isbn=book.isbn) }}">{{ book.title }}</a>
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- <ul>
         {% for book in books %}
             <li>{{ book }}</li>
         {% endfor %}
-    </ul>
+    </ul> -->
     
 {% endblock %}

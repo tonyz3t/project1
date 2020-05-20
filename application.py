@@ -4,7 +4,7 @@ from flask import Flask, session, render_template, request, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from models import *
+# from models import *
 
 app = Flask(__name__)
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -130,12 +130,24 @@ def signout():
     # redirect our user back to the login page\
     return redirect(url_for("login"))
 
-# TODO: Make each book item from the list a selectable object
-# TODO: When a book is selected, print dialog with book's details
+# TODO: When a book is selected, print dialog with book's details --> (almost)
 # TODO: display the average book ratings retrieved from GoodReads
 # TODO: Allow the user to write a review for a book
 # TODO: create data tables to store user reviews
 # TODO: connect our books, users, and reviews tables somehow
+
+@app.route("/home/<string:isbn>", methods=["GET"])
+def book(isbn):
+
+    # Get our book from our book database
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    # throw an error if the book doesnt exist
+    if book is None:
+        return render_template("error.html", message="book DNE")
+    
+    # Select reviews for the book
+
+    return render_template("book.html", book=book)
 
 @app.route("/books")
 def books():
@@ -144,7 +156,7 @@ def books():
     #return render_template
     pass
 
-@app.route("/about", methods=["POST"])
+@app.route("/about")
 def about():
     # return the about page
     return render_template("about.html")
