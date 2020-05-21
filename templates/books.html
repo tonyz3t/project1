@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Books - Bookhub
+{% endblock %}
+
+{% block body %}
+    <ul>
+        {% for book in books %}
+            <li>{{ book }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

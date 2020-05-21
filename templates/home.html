@@ -4,37 +4,59 @@
     Home - BookHub
 {% endblock %}
 
+{% block css %}
+<style>
+    .grid {
+        background-color: white;
+        display: grid;
+        padding: 20px;
+        grid-column-gap: 20px;
+        grid-row-gap: 10px;
+        grid-template-columns: auto auto auto auto auto;
+    }
+
+    .grid-item {
+        background-color: lightgray;
+        border: 1px solid black;
+        font-size: 20px;
+        padding: 20px;
+        text-align: center;
+    }
+    #tab {
+        border: 1px solid black;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
     <h1>HomePage!</h1>
 
     <!-- Links to other pages using bootstrap grid columns -->
     <div class="container">
         <div class="row">
-            <div class="col-sm">
+            <div class="col-sm" id="tab">
                 <a href="{{ url_for('books') }}">Books</a>
             </div>
-            <div class="col-sm">
+            <div class="col-sm" id="tab">
                 <a href="{{ url_for('about') }}">About</a>
             </div>
-            <div class="col-sm">
+            <div class="col-sm" id="tab">
                 <form action="{{ url_for('home') }}"" method="post" class="form-group">
                     <input class="form-control" name="search" placeholder="Search" required>
                     <button class="btn btn-primary">Search</button>
                 </form>
             </div>
-            <div class="col-sm">
+            <div class="col-sm" id="tab">
                 <a href="{{ url_for('signout') }}">SignOut</a>
             </div>
         </div>
     </div>
 
-
-    <div class="d-flex align-content-start flex-wrap">
+    <!-- Display searched books in a grid. 5x5 same size would be nice -->
+    <div class="grid">
         {% for book in books %}
-        <div class="m-auto p-2 bd-highlight">
-            <span class="p-2 border border-dark rounded-pill">
-                <a href="{{ url_for('book', isbn=book.isbn) }}">{{ book.title }}</a>
-            </span>
+        <div class="grid-item">
+            <a href="{{ url_for('book', isbn=book.isbn) }}">{{ book.title }}</a>
         </div>
         {% endfor %}
     </div>

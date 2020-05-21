@@ -56,7 +56,7 @@ def login():
         password = request.form.get("password")
 
         #find our user in our database
-        current_user = db.execute("SELECT username, password FROM users WHERE LOWER(username) = LOWER(:username)  AND password = :password",
+        current_user = db.execute("SELECT id, username, password FROM users WHERE LOWER(username) = LOWER(:username)  AND password = :password",
                                     {"username": username, "password": password}).fetchone()
 
         # If the Username is not found, notify user and keep at login page
@@ -64,7 +64,8 @@ def login():
             return render_template("login.html", message="Username or Password is incorrect, please try again")
         # else set current user to the username
         else:
-            session["USERNAME"] = current_user.username    
+            session["USERNAME"] = current_user.username
+            session["USER_ID"] = current_user.id    
             return redirect(url_for("home"))
 
 
@@ -89,7 +90,7 @@ def register():
 
         #Insert into our database
         # TODO: handle error exception when an username that exists in the datatable is added to a new user
-        db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, :email, :username, :password)",
+        db.execute("INSERT INTO users (name, email, username, password) VALUES (:name, LOWER(:email), :username, :password)",
                 {"name": name, "email": email, "username": username, "password":password})
         db.commit()
 
@@ -127,6 +128,7 @@ def home():
 def signout():
     # delete the session
     session["USERNAME"] = None
+    session["USER_ID"] = None
     # redirect our user back to the login page\
     return redirect(url_for("login"))
 
@@ -136,7 +138,7 @@ def signout():
 # TODO: create data tables to store user reviews
 # TODO: connect our books, users, and reviews tables somehow
 
-@app.route("/home/<string:isbn>", methods=["GET"])
+@app.route("/book/<string:isbn>", methods=["GET", "POST"])
 def book(isbn):
 
     # Get our book from our book database
@@ -145,13 +147,32 @@ def book(isbn):
     if book is None:
         return render_template("error.html", message="book DNE")
     
-    # Select reviews for the book
+    # Show reviews
+    reviews = db.execute("SELECT review From reviews WHERE book_id = :book_id", {"book_id": book.id}).fetchall();
 
-    return render_template("book.html", book=book)
+    # Submit user review
+    if request.method == "POST":
+        user_review = request.form.get("user_review")
+        user_score = request.form.get("user_score")
+        user_id = session["USER_ID"]
+
+        #insert the review into the databse
+        db.execute("INSERT INTO reviews (score, review, book_id, user_id) VALUES(:score, :review, :book_id, :user_id)",
+                    {"score": user_score, "review": user_review, "book_id": book.id, "user_id": user_id})
+        db.commit()
+
+        return render_template("book.html", book=book, reviews=reviews)
+
+
+    return render_template("book.html", book=book, reviews=reviews)
 
 @app.route("/books")
 def books():
     # List all the books
+
+    books = db.execute("SELECT * FROM books")
+    
+    return render_template("books.html", books=books)
     #books = Book.query.all()
     #return render_template
     pass

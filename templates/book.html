@@ -1,10 +1,31 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    hello
+    {{ book.title }} - BookHub
 {% endblock %}
 
 {% block body %}
     
     {{ book }}
+
+    <h3>Write a review!</h3>
+    <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
+        <div class="form-group">
+            <select class="form-control" name="user_score">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <input class="form-control" name="user_review" placeholder="Write your review here!">
+            <button class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+
+    <ol>
+        {% for review in reviews %}
+            <li>{{ review }}</li>
+        {% endfor %}
+    </ol>
 {% endblock %}
