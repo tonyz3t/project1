@@ -5,9 +5,13 @@
 {% endblock %}
 
 {% block body %}
-    <ul>
-        {% for book in books %}
-            <li>{{ book }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container-fluid">
+        <div class="row">
+            {% for book in books %}
+                <div class="col-md-4">
+                    <button type="button" onclick="window.location.href='{{ url_for('book', isbn=book.isbn) }}';">{{ book }}</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

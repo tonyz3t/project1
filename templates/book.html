@@ -4,9 +4,55 @@
     {{ book.title }} - BookHub
 {% endblock %}
 
+{% block css %}
+    <style>
+        .grid {
+            background-color: white;
+            display: grid;
+            padding: 0px;
+            margin: 10px;
+            grid-column-gap: 5px;
+            grid-row-gap: 2px;
+            grid-template-columns: 200px auto;
+        }
+
+        .grid-item {
+            border-collapse: collapse;
+            background-color: lightskyblue;
+            font-size: 20px;
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     
     {{ book }}
+
+    <!-- Book title at the top of the page -->
+    <div>
+        <h2>{{ book.title }}</h2>
+    </div>
+
+    <!-- A block here with a picture of the book cover and details to the left -->
+    <div id="block_detail">
+        <!-- 1x2 grid, first item is image -->
+        <div class="grid">
+            <div class="grid-item">
+                <!-- image of book cover -->
+            </div>
+            <div class="grid-item">
+                <div class="grid-item">{{ book.title }}</div>
+                <div class="grid-item">Author: {{ book.author }}</div>
+                <div class="grid-item">ISBN: {{ book.isbn }}</div>
+                <div class="grid-item">Publication Year: {{ book.year }}</div>
+                <!-- Add goodreads average score and number of reviews from goodreads -->
+                <div class="grid-item">Average Score: {{ average_score }}</div>
+                <div class="grid-item">Number of Reviews: {{ review_count }} </div>
+            </div>
+        </div>
+    </div>
 
     <h3>Write a review!</h3>
     <form action="{{ url_for('book', isbn=book.isbn) }}" method="post">
@@ -25,7 +71,10 @@
 
     <ol>
         {% for review in reviews %}
-            <li>{{ review }}</li>
+            <li>
+                <div>Score: {{ review.score }}</div>
+                <div>{{ review.review }}</div>
+            </li>
         {% endfor %}
     </ol>
 {% endblock %}

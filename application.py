@@ -1,6 +1,7 @@
 import os
+import requests
 
-from flask import Flask, session, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -20,6 +21,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 users = db.execute("SELECT username, password FROM users")
+API_KEY = "cps1I4JFH7gAxOfBtP46tQ"
 
 @app.route("/")
 # Our start of the Website
@@ -132,12 +134,6 @@ def signout():
     # redirect our user back to the login page\
     return redirect(url_for("login"))
 
-# TODO: When a book is selected, print dialog with book's details --> (almost)
-# TODO: display the average book ratings retrieved from GoodReads
-# TODO: Allow the user to write a review for a book
-# TODO: create data tables to store user reviews
-# TODO: connect our books, users, and reviews tables somehow
-
 @app.route("/book/<string:isbn>", methods=["GET", "POST"])
 def book(isbn):
 
@@ -148,7 +144,16 @@ def book(isbn):
         return render_template("error.html", message="book DNE")
     
     # Show reviews
-    reviews = db.execute("SELECT review From reviews WHERE book_id = :book_id", {"book_id": book.id}).fetchall();
+    reviews = db.execute("SELECT score, review From reviews WHERE book_id = :book_id", {"book_id": book.id}).fetchall()
+
+    # Gather review statistics from goodreads
+    res = requests.get("https://www.goodreads.com/book/review_counts.json",
+                        params={"key": API_KEY, "isbns": isbn})
+    if res.status_code != 200:
+        return render_template("error.html", message="api request unsuccessful")
+    data = res.json()
+    average_score = data["books"][0]["average_rating"]
+    review_count = data["books"][0]["reviews_count"]
 
     # Submit user review
     if request.method == "POST":
@@ -161,10 +166,7 @@ def book(isbn):
                     {"score": user_score, "review": user_review, "book_id": book.id, "user_id": user_id})
         db.commit()
 
-        return render_template("book.html", book=book, reviews=reviews)
-
-
-    return render_template("book.html", book=book, reviews=reviews)
+    return render_template("book.html", book=book, reviews=reviews, data=data, average_score=average_score, review_count=review_count)
 
 @app.route("/books")
 def books():
@@ -181,4 +183,29 @@ def books():
 def about():
     # return the about page
     return render_template("about.html")
+
+# TODO: API ACCESS  
+@app.route("/api/<string:isbn>")
+def book_api(isbn):
+    # gather book data from database
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+    # Gather review statistics from goodreads
+    res = requests.get("https://www.goodreads.com/book/review_counts.json",
+                        params={"key": API_KEY, "isbns": isbn})
+    if res.status_code != 200:
+        return render_template("error.html", message="api request unsuccessful")
+    data = res.json()
+    average_score = data["books"][0]["average_rating"]
+    review_count = data["books"][0]["reviews_count"]
+
+    # JSONify the information
+    return jsonify({
+        "title": book.title,
+        "author": book.author,
+        "year": book.year,
+        "isbn": book.isbn,
+        "review_count": review_count,
+        "average_score": average_score
+    })
 
