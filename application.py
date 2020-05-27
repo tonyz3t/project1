@@ -184,7 +184,6 @@ def about():
     # return the about page
     return render_template("about.html")
 
-# TODO: API ACCESS  
 @app.route("/api/<string:isbn>")
 def book_api(isbn):
     # gather book data from database

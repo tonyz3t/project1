@@ -1,0 +1,25 @@
+.grid {
+    background-color: white;
+    display: grid;
+    padding: 20px;
+    grid-column-gap: 20px;
+    grid-row-gap: 10px;
+    grid-template-columns: auto auto auto auto auto;
+}
+
+.grid-item {
+    background-color: black;
+    border: 1px solid black;
+    font-size: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* styling for tabs at the top */
+.item-tab {
+    font-size: large;
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
